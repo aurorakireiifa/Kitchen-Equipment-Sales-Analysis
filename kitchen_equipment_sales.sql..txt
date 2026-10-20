@@ -1,58 +1,74 @@
-#mengambil kolom order id dari table orders di dataset toko_peralatan_dapur
 
-select order_id
-from toko_peralatan_dapur.orders;
+-- Kitchen Equipment Sales Analysis
+-- Tool: Google BigQuery
 
-#mengambil kolom order id, sales date dari table orders di dataset toko_peralatan_dapur
+-- 1. Retrieve order IDs
+SELECT order_id
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`;
 
-select order_id, sales_date
-from toko_peralatan_dapur.orders;
 
-#mengambil semua kolom
+-- 2. Retrieve order IDs and sales dates
+SELECT order_id, sales_date
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`;
 
-select* 
-from toko_peralatan_dapur.orders
-where sales_date is not null;
 
-#mengambil semua kolom hanya untuk orderan dengan status cancel
-select *
-from toko_peralatan_dapur .orders
-where status_clean = 'cancel'; 
+-- 3. Retrieve orders with a valid sales date
+SELECT *
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE sales_date IS NOT NULL;
 
-#mengambil kolom sales_date, order_id, product_name, category_clean hanya untuk orderan yag category nya 
-#Alat Masak yang statusnya
-select sales_date, order_id, product_name, category_clean
-from toko_peralatan_dapur.orders
-where category_clean = 'Alat Masak'
-and status_clean = 'cancel'
-order by sales_date
-limit 5;
 
-#total sales selama tahun 2025
-select SUM(total_sales)
-from `toko_peralatan_dapur.orders`
-where status_clean = 'complete';
+-- 4. Retrieve cancelled orders
+SELECT *
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE status_clean = 'cancel';
 
-#total sales per kategori
 
-select category_clean, sum(total_sales) as revenue
-from `toko_peralatan_dapur.orders`
-where status_clean = 'complete'
-group by category_clean
-order by revenue desc;
+-- 5. Find cancelled kitchen equipment orders
+SELECT
+  sales_date,
+  order_id,
+  product_name,
+  category_clean
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE category_clean = 'Alat Masak'
+  AND status_clean = 'cancel'
+ORDER BY sales_date
+LIMIT 5;
 
-#mengelompokkan penjualan per order nya berdasarkan penjualan
-#penjualan kurang dari 500.000 > kecil
-#lebih dari 500.000 tapi kurang dari 2.000.000 > sedang
-#lebih dari 2 juta masuk kategori besar
 
-select 
-order_id,
-case 
-when total_sales > 2000000 then 'besar'
-when total_sales = 500000 then 'sedanng'
-else 'kecil'
-end as category_spending
-from `toko_peralatan_dapur.orders`
-where sales_date is not null;
+-- 6. Calculate total sales from completed orders in 2025
+SELECT SUM(total_sales) AS total_sales_2025
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE status_clean = 'complete'
+  AND sales_date >= DATE '2025-01-01'
+  AND sales_date < DATE '2026-01-01';
+
+
+-- 7. Calculate completed sales by product category
+SELECT
+  category_clean,
+  SUM(total_sales) AS revenue
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE status_clean = 'complete'
+GROUP BY category_clean
+ORDER BY revenue DESC;
+
+
+-- 8. Classify spending by order value
+-- Small: less than IDR 500,000
+-- Medium: IDR 500,000 to less than IDR 2,000,000
+-- Large: IDR 2,000,000 or more
+
+SELECT
+  order_id,
+  total_sales,
+  CASE
+    WHEN total_sales >= 2000000 THEN 'Large'
+    WHEN total_sales >= 500000 THEN 'Medium'
+    ELSE 'Small'
+  END AS spending_category
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE sales_date IS NOT NULL;
+
 
