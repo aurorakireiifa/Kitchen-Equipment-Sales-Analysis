@@ -37,12 +37,21 @@ ORDER BY total_orders DESC;
 
 
 -- 4. OVERALL SALES KPI
--- Calculate completed sales and unique orders
+-- Total sales from completed orders and all unique orders
 SELECT
-  SUM(total_sales) AS total_sales,
-  COUNT(DISTINCT order_id) AS total_orders
-FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
-WHERE status_clean = 'complete';
+  SUM(
+    CASE
+      WHEN status_clean = 'complete' THEN total_sales
+      ELSE 0
+    END
+  ) AS total_sales,
+  COUNT(DISTINCT order_id) AS total_orders,
+  COUNT(DISTINCT IF(
+    status_clean = 'complete',
+    order_id,
+    NULL
+  )) AS completed_orders
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`;
 
 
 -- 5. MONTHLY SALES TREND
@@ -98,18 +107,24 @@ GROUP BY category_clean
 ORDER BY cancelled_orders DESC;
 
 
--- 9. SPENDING CLASSIFICATION
--- Classify order values into spending groups
+-- 9. SPENDING CLASSIFICATION SUMMARY
 SELECT
-  order_id,
-  total_sales,
   CASE
     WHEN total_sales >= 2000000 THEN 'Large'
     WHEN total_sales >= 500000 THEN 'Medium'
     ELSE 'Small'
-  END AS spending_category
+  END AS spending_category,
+  COUNT(DISTINCT order_id) AS total_orders,
+  SUM(total_sales) AS total_sales
 FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
-WHERE order_id IS NOT NULL;
+WHERE order_id IS NOT NULL
+GROUP BY spending_category
+ORDER BY
+  CASE spending_category
+    WHEN 'Large' THEN 1
+    WHEN 'Medium' THEN 2
+    WHEN 'Small' THEN 3
+  END;
 ```
 
 
