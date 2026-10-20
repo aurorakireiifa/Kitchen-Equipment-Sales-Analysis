@@ -8,6 +8,7 @@ This project analyzes kitchen equipment sales data using SQL and Looker Studio t
 - **Looker Studio:** Data visualization and dashboard development
 
 ## Dashboard
+![Kitchen Equipment Sales Performance Dashboard](kitchen-equipment-dashboard.png)
 [View Kitchen Equipment Sales Performance Dashboard](https://datastudio.google.com/reporting/ad5a729a-0cb9-4615-a6e0-9800897eef55)
 
 ## SQL Analysis
