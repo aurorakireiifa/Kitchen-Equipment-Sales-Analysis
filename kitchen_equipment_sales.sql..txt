@@ -1,0 +1,58 @@
+#mengambil kolom order id dari table orders di dataset toko_peralatan_dapur
+
+select order_id
+from toko_peralatan_dapur.orders;
+
+#mengambil kolom order id, sales date dari table orders di dataset toko_peralatan_dapur
+
+select order_id, sales_date
+from toko_peralatan_dapur.orders;
+
+#mengambil semua kolom
+
+select* 
+from toko_peralatan_dapur.orders
+where sales_date is not null;
+
+#mengambil semua kolom hanya untuk orderan dengan status cancel
+select *
+from toko_peralatan_dapur .orders
+where status_clean = 'cancel'; 
+
+#mengambil kolom sales_date, order_id, product_name, category_clean hanya untuk orderan yag category nya 
+#Alat Masak yang statusnya
+select sales_date, order_id, product_name, category_clean
+from toko_peralatan_dapur.orders
+where category_clean = 'Alat Masak'
+and status_clean = 'cancel'
+order by sales_date
+limit 5;
+
+#total sales selama tahun 2025
+select SUM(total_sales)
+from `toko_peralatan_dapur.orders`
+where status_clean = 'complete';
+
+#total sales per kategori
+
+select category_clean, sum(total_sales) as revenue
+from `toko_peralatan_dapur.orders`
+where status_clean = 'complete'
+group by category_clean
+order by revenue desc;
+
+#mengelompokkan penjualan per order nya berdasarkan penjualan
+#penjualan kurang dari 500.000 > kecil
+#lebih dari 500.000 tapi kurang dari 2.000.000 > sedang
+#lebih dari 2 juta masuk kategori besar
+
+select 
+order_id,
+case 
+when total_sales > 2000000 then 'besar'
+when total_sales = 500000 then 'sedanng'
+else 'kecil'
+end as category_spending
+from `toko_peralatan_dapur.orders`
+where sales_date is not null;
+
