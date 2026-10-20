@@ -1,27 +1,35 @@
 # Kitchen Equipment Sales Analysis
+### Sales Performance Dashboard | Google BigQuery & Looker Studio
 
 ## Project Overview
-This project analyzes kitchen equipment sales data using SQL and Looker Studio to explore sales performance, product categories, and order status.
+This project analyzes kitchen equipment sales data to explore sales performance, product contributions, customer locations, and order status. SQL queries were developed in Google BigQuery, and the results were presented in an interactive Looker Studio dashboard.
 
-## Tools
-- **Google BigQuery (SQL):** Data querying and analysis
-- **Looker Studio:** Data visualization and dashboard development
+## Dashboard Preview
 
-## Dashboard
 ![Kitchen Equipment Sales Performance Dashboard](kitchen-equipment-dashboard.png)
 
-[View Kitchen Equipment Sales Performance Dashboard](https://datastudio.google.com/reporting/ad5a729a-0cb9-4615-a6e0-9800897eef55)
+**[View Interactive Dashboard](https://datastudio.google.com/reporting/ad5a729a-0cb9-4615-a6e0-9800897eef55)**
 
-## SQL Analysis
-The SQL queries in this repository explore:
-- Order and product data
-- Sales performance by product category
-- Completed orders and total sales
-- Order status and spending categories
+## Tools Used
+- **SQL:** Data querying, filtering, aggregation, and conditional classification
+- **Google BigQuery:** Data exploration and analysis
+- **Looker Studio:** Dashboard development and data visualization
 
-## Dataset
-The project uses a cleaned kitchen equipment sales dataset containing order details, sales dates, product names, categories, order statuses, and sales values.
+## Key Analysis
+- Total sales and sales performance over time
+- Revenue contribution by product category
+- Sales by product and city
+- Order status analysis
+- Spending classification by order value
 
-## Project Status
-Dashboard development and SQL exploration have been completed. Further validation of business metrics and insights is ongoing.
+## Repository Contents
+- `kitchen_equipment_sales.sql` — SQL queries used for data exploration and analysis
+- `kitchen-equipment-dashboard.png` — Dashboard preview image
+- `Dashboard/` — Dashboard link and documentation
+
+## Key Insights
+The dashboard highlights overall sales performance, monthly trends, product-level contributions, and geographic distribution. These views help identify high-performing products and categories and support data-driven business discussions.
+
+## Skills Demonstrated
+SQL querying, data aggregation, data analysis, dashboard development, and data visualization.
 
