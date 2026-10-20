@@ -1,65 +1,105 @@
-
+```sql
+-- =====================================================
 -- Kitchen Equipment Sales Analysis
 -- Tool: Google BigQuery
-
--- 1. Retrieve order IDs
-SELECT order_id
-FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`;
-
-
--- 2. Retrieve order IDs and sales dates
-SELECT order_id, sales_date
-FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`;
+-- Purpose: Explore sales performance and generate
+-- insights for the Looker Studio dashboard
+-- =====================================================
 
 
--- 3. Retrieve orders with a valid sales date
+-- 1. DATA EXPLORATION
+-- Preview the dataset
 SELECT *
 FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
-WHERE sales_date IS NOT NULL;
+LIMIT 10;
 
 
--- 4. Retrieve cancelled orders
-SELECT *
-FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
-WHERE status_clean = 'cancel';
-
-
--- 5. Find cancelled kitchen equipment orders
+-- 2. DATA QUALITY CHECK
+-- Check total rows and records with valid order IDs
 SELECT
-  sales_date,
-  order_id,
-  product_name,
-  category_clean
+  COUNT(*) AS total_rows,
+  COUNT(order_id) AS valid_order_ids,
+  COUNT(DISTINCT order_id) AS unique_orders,
+  COUNTIF(sales_date IS NULL) AS missing_sales_dates,
+  COUNTIF(total_sales IS NULL) AS missing_sales_values
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`;
+
+
+-- 3. ORDER STATUS SUMMARY
+-- Analyze the number of unique orders by status
+SELECT
+  status_clean,
+  COUNT(DISTINCT order_id) AS total_orders,
+  SUM(total_sales) AS total_sales
 FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
-WHERE category_clean = 'Alat Masak'
-  AND status_clean = 'cancel'
-ORDER BY sales_date
-LIMIT 5;
+GROUP BY status_clean
+ORDER BY total_orders DESC;
 
 
--- 6. Calculate total sales from completed orders in 2025
-SELECT SUM(total_sales) AS total_sales_2025
+-- 4. OVERALL SALES KPI
+-- Calculate completed sales and unique orders
+SELECT
+  SUM(total_sales) AS total_sales,
+  COUNT(DISTINCT order_id) AS total_orders
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE status_clean = 'complete';
+
+
+-- 5. MONTHLY SALES TREND
+-- Analyze completed sales by month in 2025
+SELECT
+  FORMAT_DATE('%Y-%m', sales_date) AS sales_month,
+  SUM(total_sales) AS monthly_sales,
+  COUNT(DISTINCT order_id) AS total_orders
 FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
 WHERE status_clean = 'complete'
   AND sales_date >= DATE '2025-01-01'
-  AND sales_date < DATE '2026-01-01';
+  AND sales_date < DATE '2026-01-01'
+GROUP BY sales_month
+ORDER BY sales_month;
 
 
--- 7. Calculate completed sales by product category
+-- 6. SALES BY PRODUCT CATEGORY
+-- Identify the highest-revenue categories
 SELECT
   category_clean,
-  SUM(total_sales) AS revenue
+  SUM(total_sales) AS revenue,
+  SAFE_DIVIDE(
+    SUM(total_sales),
+    SUM(SUM(total_sales)) OVER ()
+  ) * 100 AS revenue_percentage
 FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
 WHERE status_clean = 'complete'
 GROUP BY category_clean
 ORDER BY revenue DESC;
 
 
--- 8. Classify spending by order value
--- Small: less than IDR 500,000
--- Medium: IDR 500,000 to less than IDR 2,000,000
--- Large: IDR 2,000,000 or more
+-- 7. TOP 5 PRODUCTS BY SALES
+-- Identify the top-performing products
+SELECT
+  product_name,
+  SUM(total_sales) AS total_sales
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE status_clean = 'complete'
+GROUP BY product_name
+ORDER BY total_sales DESC
+LIMIT 5;
 
+
+-- 8. CANCELLED ORDERS
+-- Review cancelled orders by category
+SELECT
+  category_clean,
+  COUNT(DISTINCT order_id) AS cancelled_orders,
+  SUM(total_sales) AS cancelled_sales_value
+FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
+WHERE status_clean = 'cancel'
+GROUP BY category_clean
+ORDER BY cancelled_orders DESC;
+
+
+-- 9. SPENDING CLASSIFICATION
+-- Classify order values into spending groups
 SELECT
   order_id,
   total_sales,
@@ -69,6 +109,7 @@ SELECT
     ELSE 'Small'
   END AS spending_category
 FROM `digital-yeti-501312-b7.toko_peralatan_dapur.orders`
-WHERE sales_date IS NOT NULL;
+WHERE order_id IS NOT NULL;
+```
 
 
